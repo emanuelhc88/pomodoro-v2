@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <title>arOS Pomodoro</title>
+  </head>
+  <body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="relative w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl p-8 overflow-hidden">
+        <!-- Elementos de iluminação do Glassmorphism -->
+        <div class="absolute -top-32 -left-32 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-32 -right-32 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10">
+            <!-- Cabeçalho -->
+            <header class="text-center mb-10">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">Pomodoro</h1>
+                <p class="text-slate-400 mt-1 text-sm font-medium">Maximize your focus</p>
+            </header>
+
+            <!-- Modos -->
+            <div class="flex justify-center space-x-3 mb-10">
+                <button class="mode-btn active px-5 py-2 rounded-full text-sm font-medium transition-all border border-transparent" data-mode="1" data-foco="25" data-pausa="5">Padrão</button>
+                <button class="mode-btn px-5 py-2 rounded-full text-sm font-medium transition-all bg-white/5 text-slate-300 hover:bg-white/10 border border-transparent" data-mode="2" data-foco="50" data-pausa="10">Focado</button>
+                <button class="mode-btn px-5 py-2 rounded-full text-sm font-medium transition-all bg-white/5 text-slate-300 hover:bg-white/10 border border-transparent" data-mode="3" data-foco="15" data-pausa="3">Leitura</button>
+            </div>
+
+            <!-- Timer -->
+            <div class="text-center mb-10">
+                <div class="text-7xl font-bold tracking-tight text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] mb-3 tabular-nums" id="timer-display">25:00</div>
+                <div class="text-slate-400 uppercase text-xs font-bold tracking-[0.2em]" id="status-label">READY TO FOCUS</div>
+            </div>
+
+            <!-- Controles -->
+            <div class="space-y-4">
+                <input type="text" id="task-input" placeholder="What are you working on?" class="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all font-medium">
+                
+                <button id="start-btn" class="w-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] transition-all transform active:scale-[0.98] uppercase tracking-wider">
+                    Start Session
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

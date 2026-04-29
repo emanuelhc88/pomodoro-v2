@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* Ajustes finos adicionais */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.mode-btn.active {
+  background-color: rgba(99, 102, 241, 0.2);
+  color: rgb(165, 180, 252);
+  border-color: rgba(99, 102, 241, 0.5);
+}
