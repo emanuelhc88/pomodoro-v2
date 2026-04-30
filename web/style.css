@@ -1,12 +1,32 @@
 @import "tailwindcss";
 
-/* Ajustes finos adicionais */
-body {
-  font-family: 'Inter', sans-serif;
+@theme {
+  --color-toma-bg: #0C0C0C;
+  --color-toma-surface: #161616;
+  --color-toma-elevated: #1F1F1F;
+  --color-toma-border: #2A2A2A;
+  --color-toma-brand: #E8432D;
+  --color-toma-accent: #FF6B47;
+  --color-toma-primary: #F5F0EB;
+  --color-toma-muted: #888888;
+
+  --font-display: 'JetBrains Mono', monospace;
+  --font-ui: 'Inter', sans-serif;
 }
 
-.mode-btn.active {
-  background-color: rgba(99, 102, 241, 0.2);
-  color: rgb(165, 180, 252);
-  border-color: rgba(99, 102, 241, 0.5);
+@layer utilities {
+  .border-hairline {
+    border-width: 0.5px;
+  }
+}
+
+body {
+  background-color: var(--color-toma-bg);
+  color: var(--color-toma-primary);
+  font-family: var(--font-ui);
+}
+
+/* Esconde o outline padrão, usa ring customizado ou apenas cores */
+input:focus, button:focus {
+  outline: none;
 }
