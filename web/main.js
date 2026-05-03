@@ -11,7 +11,8 @@ let secondsRemaining = 0;
 let isFocusing = false;
 let currentTask = "";
 
-const API_URL = "http://localhost:8000/tasks";
+// A URL da nossa API Python (FastAPI) rodando no Render
+const API_URL = "https://toma-api.onrender.com/tasks";
 
 // Change Mode Logic
 modeBtns.forEach(btn => {
