@@ -18,3 +18,5 @@ historico.json
 .claude/
 .gemini/
 
+
+.env
