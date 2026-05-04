@@ -44,13 +44,31 @@ function updateTimerDisplay(totalSeconds) {
     timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+const historyList = document.getElementById('history-list');
+
 async function fetchHistory() {
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
-        console.log("History loaded:", data.history);
+        
+        historyList.innerHTML = ''; // Limpa a lista
+        
+        if (!data.history || data.history.length === 0) {
+            historyList.innerHTML = '<li class="text-[13px] text-toma-muted">No sessions recorded yet.</li>';
+            return;
+        }
+
+        // Renderiza as tarefas (da mais recente para a mais antiga)
+        data.history.reverse().forEach(task => {
+            const li = document.createElement('li');
+            li.className = 'text-[13px] text-toma-primary bg-toma-elevated px-3 py-2 rounded-[4px] border-hairline border-toma-border flex items-center before:content-[""] before:w-1.5 before:h-1.5 before:bg-toma-brand before:rounded-full before:mr-2';
+            li.textContent = task;
+            historyList.appendChild(li);
+        });
+        
     } catch(e) {
-        console.error("Backend offline. Run: python3 run_api.py", e);
+        console.error("Backend offline.", e);
+        historyList.innerHTML = '<li class="text-[13px] text-toma-brand">Failed to load history.</li>';
     }
 }
 
