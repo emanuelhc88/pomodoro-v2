@@ -17,20 +17,9 @@ class PostgresSessionRepository(ISessionRepository):
         # Prepara a fábrica de sessões (transações)
         self.Session = sessionmaker(bind=self.engine)
 
-    def save_history(self, history: list):
-        # Pela nossa lógica antiga, o history é uma lista de strings.
-        # Mas no DB, nós adicionamos um registro de cada vez.
-        # Para manter o contrato ISessionRepository sem quebrar o RunSessionUseCase antigo,
-        # vamos apenas pegar a última tarefa adicionada na lista (que foi o append feito no use case).
-        # Em uma refatoração melhor, o Use Case enviaria apenas a tarefa individual, 
-        # mas faremos isso para respeitar a Clean Architecture e trocar a peça perfeitamente.
-        if not history:
-            return
-            
-        last_task_name = history[-1]
-
+    def save_task(self, task_name: str, cycles: int):
         with self.Session() as session:
-            new_record = TaskRecord(task_name=last_task_name)
+            new_record = TaskRecord(task_name=task_name, cycles=cycles)
             session.add(new_record)
             session.commit()
 
@@ -39,4 +28,4 @@ class PostgresSessionRepository(ISessionRepository):
         # assim a aplicação não percebe que os dados vieram de um banco real.
         with self.Session() as session:
             records = session.query(TaskRecord).order_by(TaskRecord.created_at.asc()).all()
-            return [record.task_name for record in records]
+            return [f"{record.task_name} ({record.cycles} cycles)" for record in records]

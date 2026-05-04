@@ -12,6 +12,7 @@ class TaskRecord(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     task_name = Column(String, nullable=False)
+    cycles = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):

@@ -18,6 +18,7 @@ app.add_middleware(
 
 class TaskRequest(BaseModel):
     task_name: str
+    cycles: int = 1
 
 # Estas variáveis globais serão injetadas pelo run_api.py
 get_history_use_case = None
@@ -30,5 +31,5 @@ def get_tasks():
 
 @app.post("/tasks")
 def save_task(request: TaskRequest):
-    result = save_task_use_case.execute(request.task_name)
+    result = save_task_use_case.execute(request.task_name, request.cycles)
     return result

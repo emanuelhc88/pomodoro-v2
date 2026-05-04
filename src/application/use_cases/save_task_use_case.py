@@ -5,10 +5,6 @@ class SaveTaskUseCase:
     def __init__(self, repository: ISessionRepository):
         self.repository = repository
 
-    def execute(self, task_name: str, cycle: int = 0):
-        # Na versão CLI, salvávamos apenas o nome (em strings) na lista.
-        # Para compatibilidade (ou se quisermos evoluir depois), faremos o mesmo.
-        history = self.repository.load_history()
-        history.append(task_name)
-        self.repository.save_history(history)
+    def execute(self, task_name: str, cycles: int = 1):
+        self.repository.save_task(task_name, cycles)
         return {"status": "success", "message": "Tarefa salva com sucesso!"}

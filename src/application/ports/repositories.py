@@ -4,7 +4,7 @@ class ISessionRepository(ABC):
     """Contrato que define como o histórico deve ser salvo/carregado, sem saber se é BD ou Arquivo."""
     
     @abstractmethod
-    def save_history(self, history: list):
+    def save_task(self, task_name: str, cycles: int):
         pass
 
     @abstractmethod

@@ -6,8 +6,10 @@ class JsonSessionRepository(ISessionRepository):
     def __init__(self, file_path: str = "historico.json"):
         self.file_path = file_path
 
-    def save_history(self, history: list):
+    def save_task(self, task_name: str, cycles: int):
         try:
+            history = self.load_history()
+            history.append(f"{task_name} ({cycles} cycles)")
             with open(self.file_path, "w", encoding="utf-8") as arquivo:
                 json.dump(history, arquivo, indent=4, ensure_ascii=False)
         except Exception as e:
