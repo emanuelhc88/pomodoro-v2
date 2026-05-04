@@ -26,6 +26,19 @@
             <button class="mode-btn active px-3 py-1.5 rounded-[4px] text-[13px] font-medium bg-toma-elevated text-toma-primary border-hairline border-toma-border transition-colors cursor-pointer" data-foco="25" data-pausa="5">Focus</button>
             <button class="mode-btn px-3 py-1.5 rounded-[4px] text-[13px] font-medium bg-transparent text-toma-muted border-hairline border-transparent hover:bg-toma-elevated hover:text-toma-primary transition-colors cursor-pointer" data-foco="50" data-pausa="10">Deep Work</button>
             <button class="mode-btn px-3 py-1.5 rounded-[4px] text-[13px] font-medium bg-transparent text-toma-muted border-hairline border-transparent hover:bg-toma-elevated hover:text-toma-primary transition-colors cursor-pointer" data-foco="15" data-pausa="3">Read</button>
+            <button class="mode-btn px-3 py-1.5 rounded-[4px] text-[13px] font-medium bg-transparent text-toma-muted border-hairline border-transparent hover:bg-toma-elevated hover:text-toma-primary transition-colors cursor-pointer" data-foco="custom" data-pausa="custom">Custom</button>
+        </div>
+
+        <!-- Custom Settings (Hidden by default) -->
+        <div id="custom-settings" class="hidden flex gap-4 mb-8">
+            <div class="flex-1">
+                <label class="block text-[12px] text-toma-muted mb-1">Focus (min)</label>
+                <input type="number" id="custom-focus-input" value="25" min="1" class="w-full bg-toma-elevated border-hairline border-toma-border rounded-[8px] px-3 py-2 text-[14px] text-toma-primary focus:border-toma-muted transition-colors hide-arrows">
+            </div>
+            <div class="flex-1">
+                <label class="block text-[12px] text-toma-muted mb-1">Break (min)</label>
+                <input type="number" id="custom-break-input" value="5" min="1" class="w-full bg-toma-elevated border-hairline border-toma-border rounded-[8px] px-3 py-2 text-[14px] text-toma-primary focus:border-toma-muted transition-colors hide-arrows">
+            </div>
         </div>
 
         <!-- Timer Display -->
@@ -36,11 +49,22 @@
 
         <!-- Controls -->
         <div class="space-y-4">
-            <input type="text" id="task-input" placeholder="Task description..." class="w-full bg-toma-elevated border-hairline border-toma-border rounded-[8px] px-3 py-2 text-[14px] text-toma-primary placeholder-toma-muted focus:border-toma-muted transition-colors">
+            <div class="flex gap-2">
+                <input type="text" id="task-input" placeholder="Task description..." class="flex-1 bg-toma-elevated border-hairline border-toma-border rounded-[8px] px-3 py-2 text-[14px] text-toma-primary placeholder-toma-muted focus:border-toma-muted transition-colors">
+                <input type="number" id="cycles-input" value="1" min="1" title="Cycles" class="w-16 bg-toma-elevated border-hairline border-toma-border rounded-[8px] px-3 py-2 text-[14px] text-toma-primary focus:border-toma-muted transition-colors text-center hide-arrows">
+            </div>
             
-            <button id="start-btn" class="w-full bg-toma-brand text-toma-bg font-medium text-[14px] py-2.5 rounded-[8px] hover:bg-toma-accent transition-colors cursor-pointer">
-                Start session
-            </button>
+            <div id="action-buttons" class="flex gap-2">
+                <button id="start-btn" class="flex-1 bg-toma-brand text-toma-bg font-medium text-[14px] py-2.5 rounded-[8px] hover:bg-toma-accent transition-colors cursor-pointer">
+                    Start session
+                </button>
+                <button id="pause-btn" class="hidden flex-1 bg-toma-elevated text-toma-primary font-medium text-[14px] py-2.5 rounded-[8px] border-hairline border-toma-border hover:border-toma-muted transition-colors cursor-pointer">
+                    Pause
+                </button>
+                <button id="stop-btn" class="hidden flex-1 bg-transparent text-[#E8432D] font-medium text-[14px] py-2.5 rounded-[8px] border-hairline border-[#E8432D]/30 hover:border-[#E8432D] transition-colors cursor-pointer">
+                    Stop
+                </button>
+            </div>
         </div>
 
         <!-- History -->

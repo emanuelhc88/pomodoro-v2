@@ -1,15 +1,24 @@
 const timerDisplay = document.getElementById('timer-display');
 const statusLabel = document.getElementById('status-label');
 const startBtn = document.getElementById('start-btn');
+const pauseBtn = document.getElementById('pause-btn');
+const stopBtn = document.getElementById('stop-btn');
 const taskInput = document.getElementById('task-input');
+const cyclesInput = document.getElementById('cycles-input');
 const modeBtns = document.querySelectorAll('.mode-btn');
+
+const customSettings = document.getElementById('custom-settings');
+const customFocusInput = document.getElementById('custom-focus-input');
+const customBreakInput = document.getElementById('custom-break-input');
 
 let currentFocusTime = 25;
 let currentPauseTime = 5;
 let timerInterval = null;
 let secondsRemaining = 0;
-let isFocusing = false;
+let currentState = 'IDLE'; // IDLE, FOCUSING, BREAKING
 let currentTask = "";
+let totalCycles = 1;
+let currentCycle = 1;
 
 // A URL da nossa API Python (FastAPI) rodando no Render
 const API_URL = "https://toma-api.onrender.com/tasks";
@@ -17,7 +26,7 @@ const API_URL = "https://toma-api.onrender.com/tasks";
 // Change Mode Logic
 modeBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
-        if (timerInterval) return; // Prevent changing mode while running
+        if (currentState !== 'IDLE') return; // Prevent changing mode while active
         
         // Reset styles for all
         modeBtns.forEach(b => {
@@ -30,11 +39,30 @@ modeBtns.forEach(btn => {
         clickedBtn.classList.remove('bg-transparent', 'text-toma-muted', 'border-transparent');
         clickedBtn.classList.add('active', 'bg-toma-elevated', 'text-toma-primary', 'border-toma-border');
         
-        currentFocusTime = parseInt(clickedBtn.dataset.foco);
-        currentPauseTime = parseInt(clickedBtn.dataset.pausa);
+        const foco = clickedBtn.dataset.foco;
+        if (foco === 'custom') {
+            customSettings.classList.remove('hidden');
+            currentFocusTime = parseInt(customFocusInput.value) || 25;
+            currentPauseTime = parseInt(customBreakInput.value) || 5;
+        } else {
+            customSettings.classList.add('hidden');
+            currentFocusTime = parseInt(foco);
+            currentPauseTime = parseInt(clickedBtn.dataset.pausa);
+        }
         
         updateTimerDisplay(currentFocusTime * 60);
         statusLabel.textContent = "Ready.";
+        statusLabel.className = "text-[12px] text-toma-muted mt-2";
+    });
+});
+
+// Update custom inputs live
+[customFocusInput, customBreakInput].forEach(input => {
+    input.addEventListener('input', () => {
+        if (currentState !== 'IDLE') return;
+        currentFocusTime = parseInt(customFocusInput.value) || 25;
+        currentPauseTime = parseInt(customBreakInput.value) || 5;
+        updateTimerDisplay(currentFocusTime * 60);
     });
 });
 
@@ -72,62 +100,46 @@ async function fetchHistory() {
     }
 }
 
-async function saveTaskToBackend(taskName) {
+async function saveTaskToBackend(taskName, cycles) {
     try {
         await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ task_name: taskName })
+            body: JSON.stringify({ task_name: taskName, cycles: cycles })
         });
-        console.log(`Task saved: ${taskName}`);
+        console.log(`Task saved: ${taskName} with ${cycles} cycles`);
         fetchHistory(); 
     } catch(e) {
         console.error("Failed to save task.", e);
     }
 }
 
-function setButtonToStart() {
-    startBtn.textContent = "Start session";
-    startBtn.classList.remove('bg-toma-elevated', 'text-toma-primary', 'border-hairline', 'border-toma-border');
-    startBtn.classList.add('bg-toma-brand', 'text-toma-bg', 'hover:bg-toma-accent');
+function setUIActive() {
+    startBtn.classList.add('hidden');
+    pauseBtn.classList.remove('hidden');
+    stopBtn.classList.remove('hidden');
+    pauseBtn.textContent = "Pause";
+    
+    taskInput.disabled = true;
+    cyclesInput.disabled = true;
+    taskInput.classList.add('opacity-50');
+    cyclesInput.classList.add('opacity-50');
+    modeBtns.forEach(b => b.classList.add('opacity-50', 'pointer-events-none'));
 }
 
-function setButtonToStop() {
-    startBtn.textContent = "Stop session";
-    startBtn.classList.remove('bg-toma-brand', 'text-toma-bg', 'hover:bg-toma-accent');
-    startBtn.classList.add('bg-toma-elevated', 'text-toma-primary', 'border-hairline', 'border-toma-border');
+function setUIIdle() {
+    startBtn.classList.remove('hidden');
+    pauseBtn.classList.add('hidden');
+    stopBtn.classList.add('hidden');
+    
+    taskInput.disabled = false;
+    cyclesInput.disabled = false;
+    taskInput.classList.remove('opacity-50');
+    cyclesInput.classList.remove('opacity-50');
+    modeBtns.forEach(b => b.classList.remove('opacity-50', 'pointer-events-none'));
 }
 
-startBtn.addEventListener('click', () => {
-    if (timerInterval) {
-        // Stop timer logic
-        clearInterval(timerInterval);
-        timerInterval = null;
-        setButtonToStart();
-        statusLabel.textContent = "Session cancelled.";
-        statusLabel.classList.remove('text-toma-accent');
-        statusLabel.classList.add('text-toma-muted');
-        updateTimerDisplay(currentFocusTime * 60);
-        return;
-    }
-
-    currentTask = taskInput.value.trim();
-    if(!currentTask) {
-        statusLabel.textContent = "Input required. Enter a task.";
-        return;
-    }
-    
-    // Start session
-    isFocusing = true;
-    secondsRemaining = currentFocusTime * 60;
-    
-    setButtonToStop();
-    
-    statusLabel.textContent = "Focusing: " + currentTask;
-    statusLabel.classList.remove('text-toma-muted');
-    statusLabel.classList.add('text-toma-accent');
-
-    // Engine
+function startTimer() {
     timerInterval = setInterval(() => {
         secondsRemaining--;
         updateTimerDisplay(secondsRemaining);
@@ -136,17 +148,83 @@ startBtn.addEventListener('click', () => {
             clearInterval(timerInterval);
             timerInterval = null;
             
-            if (isFocusing) {
-                saveTaskToBackend(currentTask);
-                statusLabel.textContent = "Session complete. Data saved.";
-                setButtonToStart();
-                statusLabel.classList.remove('text-toma-accent');
-                statusLabel.classList.add('text-toma-muted');
-                updateTimerDisplay(currentFocusTime * 60);
-                taskInput.value = "";
+            if (currentState === 'FOCUSING') {
+                if (currentCycle < totalCycles) {
+                    // Go to Break
+                    currentState = 'BREAKING';
+                    secondsRemaining = currentPauseTime * 60;
+                    statusLabel.textContent = `Break (${currentCycle}/${totalCycles}). Relax.`;
+                    statusLabel.className = "text-[12px] text-toma-brand mt-2";
+                    updateTimerDisplay(secondsRemaining);
+                    startTimer(); // auto-start break
+                } else {
+                    // Session completely done
+                    currentState = 'IDLE';
+                    saveTaskToBackend(currentTask, totalCycles);
+                    statusLabel.textContent = "Session complete. Data saved.";
+                    statusLabel.className = "text-[12px] text-toma-muted mt-2";
+                    setUIIdle();
+                    updateTimerDisplay(currentFocusTime * 60);
+                    taskInput.value = "";
+                }
+            } else if (currentState === 'BREAKING') {
+                // Go to next Focus
+                currentCycle++;
+                currentState = 'FOCUSING';
+                secondsRemaining = currentFocusTime * 60;
+                statusLabel.textContent = `Focusing: ${currentTask} (${currentCycle}/${totalCycles})`;
+                statusLabel.className = "text-[12px] text-toma-accent mt-2";
+                updateTimerDisplay(secondsRemaining);
+                startTimer(); // auto-start next focus
             }
         }
     }, 1000);
+}
+
+startBtn.addEventListener('click', () => {
+    currentTask = taskInput.value.trim();
+    if(!currentTask) {
+        statusLabel.textContent = "Input required. Enter a task.";
+        return;
+    }
+    
+    totalCycles = parseInt(cyclesInput.value) || 1;
+    currentCycle = 1;
+    
+    currentState = 'FOCUSING';
+    secondsRemaining = currentFocusTime * 60;
+    
+    setUIActive();
+    
+    statusLabel.textContent = `Focusing: ${currentTask} (${currentCycle}/${totalCycles})`;
+    statusLabel.className = "text-[12px] text-toma-accent mt-2";
+    
+    startTimer();
+});
+
+pauseBtn.addEventListener('click', () => {
+    if (timerInterval) {
+        // Pause
+        clearInterval(timerInterval);
+        timerInterval = null;
+        pauseBtn.textContent = "Resume";
+        statusLabel.textContent += " (Paused)";
+    } else {
+        // Resume
+        startTimer();
+        pauseBtn.textContent = "Pause";
+        statusLabel.textContent = statusLabel.textContent.replace(" (Paused)", "");
+    }
+});
+
+stopBtn.addEventListener('click', () => {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    currentState = 'IDLE';
+    setUIIdle();
+    statusLabel.textContent = "Session cancelled.";
+    statusLabel.className = "text-[12px] text-toma-muted mt-2";
+    updateTimerDisplay(currentFocusTime * 60);
 });
 
 fetchHistory();

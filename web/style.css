@@ -18,6 +18,16 @@
   .border-hairline {
     border-width: 0.5px;
   }
+
+  /* Hide arrows from number inputs for clean UI */
+  .hide-arrows::-webkit-outer-spin-button,
+  .hide-arrows::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .hide-arrows {
+    -moz-appearance: textfield;
+  }
 }
 
 body {
